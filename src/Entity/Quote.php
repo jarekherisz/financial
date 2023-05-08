@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\QuoteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
 
 #[ORM\Entity(repositoryClass: QuoteRepository::class)]
 class Quote
@@ -13,6 +15,10 @@ class Quote
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ManyToOne(targetEntity:Instrument::class, inversedBy:"quotes")]
+    #[JoinColumn(name:"instrument_id", referencedColumnName:"id")]
+    private Instrument|null $instrument = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;
@@ -120,6 +126,18 @@ class Quote
     public function setVolume(?string $volume): self
     {
         $this->volume = $volume;
+
+        return $this;
+    }
+
+    public function getInstrument(): ?Instrument
+    {
+        return $this->instrument;
+    }
+
+    public function setInstrument(?Instrument $instrument): self
+    {
+        $this->instrument = $instrument;
 
         return $this;
     }
