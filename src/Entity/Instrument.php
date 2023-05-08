@@ -2,8 +2,12 @@
 
 namespace App\Entity;
 
+use App\Core\Entity\FileToModule;
 use App\Repository\InstrumentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OneToMany;
 
 #[ORM\Entity(repositoryClass: InstrumentRepository::class)]
 class Instrument
@@ -30,6 +34,14 @@ class Instrument
 
     #[ORM\Column(length: 100)]
     private ?string $dividend_module = null;
+
+    #[OneToMany(mappedBy: 'instrument', targetEntity: Quote::class)]
+    private Collection $quotes;
+    
+    public function __construct()
+    {
+        $this->quotes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -104,6 +116,36 @@ class Instrument
     public function setExchange(string $exchange): self
     {
         $this->exchange = $exchange;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Quote>
+     */
+    public function getQuotes(): Collection
+    {
+        return $this->quotes;
+    }
+
+    public function addQuote(Quote $quote): self
+    {
+        if (!$this->quotes->contains($quote)) {
+            $this->quotes->add($quote);
+            $quote->setInstrument($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQuote(Quote $quote): self
+    {
+        if ($this->quotes->removeElement($quote)) {
+            // set the owning side to null (unless already changed)
+            if ($quote->getInstrument() === $this) {
+                $quote->setInstrument(null);
+            }
+        }
 
         return $this;
     }
