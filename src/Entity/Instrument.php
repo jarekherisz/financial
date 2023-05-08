@@ -18,6 +18,9 @@ class Instrument
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    private ?string $type = null;
+
+    #[ORM\Column(length: 50)]
     private ?string $symbol = null;
 
     #[ORM\Column(length: 50)]
@@ -34,6 +37,9 @@ class Instrument
 
     #[ORM\Column(length: 100)]
     private ?string $dividend_module = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $quote_module = null;
 
     #[OneToMany(mappedBy: 'instrument', targetEntity: Quote::class)]
     private Collection $quotes;
@@ -146,6 +152,30 @@ class Instrument
                 $quote->setInstrument(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getQuoteModule(): ?string
+    {
+        return $this->quote_module;
+    }
+
+    public function setQuoteModule(string $quote_module): self
+    {
+        $this->quote_module = $quote_module;
 
         return $this;
     }
