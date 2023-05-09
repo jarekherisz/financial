@@ -18,9 +18,9 @@ class Quote
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ManyToOne(targetEntity:Instrument::class, inversedBy:"quotes")]
+    #[ManyToOne(targetEntity:InstrumentExchange::class, inversedBy:"quotes")]
     #[JoinColumn(name:"instrument_id", referencedColumnName:"id")]
-    private Instrument|null $instrument = null;
+    private InstrumentExchange|null $instrumentExchange = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;

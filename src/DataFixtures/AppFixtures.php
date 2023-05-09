@@ -46,6 +46,9 @@ class AppFixtures extends Fixture
             'FRA:EUNL', 'IE00B4L5Y983', 'divvydiary',
             YahooFinanceImportQuoteProvider::class);
 
+        $this->createInstrument('ETF', 'LON', 'EQQQ', 'EQQU.L',
+            'LON:EQQU', 'IE0032077012', 'divvydiary',
+            YahooFinanceImportQuoteProvider::class);
 
         $manager->flush();
     }

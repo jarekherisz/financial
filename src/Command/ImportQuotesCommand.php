@@ -81,11 +81,10 @@ class ImportQuotesCommand extends Command
                 $importProvider = $this->importQuoteBuilder->getImportProvider($instrument);
                 $importProvider->import($instrument);
 
-
-                $io->writeln('');
             }
 
             $progressBar?->finish();
+            $io->writeln('');
         }
 
         return Command::SUCCESS;
