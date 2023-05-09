@@ -26,9 +26,14 @@ class InstrumentExchange
     #[OneToMany(mappedBy: 'instrument', targetEntity: Quote::class)]
     private Collection $quotes;
 
-
     #[ORM\Column(length: 20)]
     private string $ticker;
+
+    #[ORM\Column(length: 10)]
+    private string $exchange;
+
+    #[ORM\Column(length: 10)]
+    private string $currency;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $tickerGoogle;
@@ -150,6 +155,30 @@ class InstrumentExchange
                 $quote->setInstrument(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getExchange(): ?string
+    {
+        return $this->exchange;
+    }
+
+    public function setExchange(string $exchange): self
+    {
+        $this->exchange = $exchange;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(string $currency): self
+    {
+        $this->currency = $currency;
 
         return $this;
     }
