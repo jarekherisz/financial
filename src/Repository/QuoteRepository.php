@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Instrument;
 use App\Entity\Quote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -39,28 +41,42 @@ class QuoteRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Quote[] Returns an array of Quote objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('q')
-//            ->andWhere('q.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('q.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @param Instrument $instrument
+     * @param \DateTimeInterface $date
+     * @return Quote|null
+     * @throws NonUniqueResultException
+     */
+    public function findOneByInstrumentAndDate(Instrument $instrument, DateTimeInterface $date): ?Quote
+    {
+        return $this->createQueryBuilder('q')
+            ->andWhere('q.instrument = :instrument')
+            ->andWhere('q.date = :date')
+            ->setParameter('instrument', $instrument)
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
-//    public function findOneBySomeField($value): ?Quote
-//    {
-//        return $this->createQueryBuilder('q')
-//            ->andWhere('q.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * @param Instrument $instrument
+     * @return Quote[]
+     */
+    public function findArrayByInstrument(Instrument $instrument): array
+    {
+        $quotes = $this->createQueryBuilder('q')
+            ->andWhere('q.instrument = :instrument')
+            ->setParameter('instrument', $instrument)
+            ->getQuery()
+            ->getResult();
+
+        $quotesArray = [];
+        foreach($quotes as $quote) {
+            $quotesArray[$quote->getDate()->format('Y-m-d')] = $quote;
+        }
+
+        return $quotesArray;
+    }
+
+
 }

@@ -7,8 +7,10 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: QuoteRepository::class)]
+#[UniqueConstraint(name: "instrument_date_unique", columns: ["instrument_id", "date"])]
 class Quote
 {
     #[ORM\Id]

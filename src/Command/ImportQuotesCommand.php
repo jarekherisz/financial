@@ -7,6 +7,7 @@ use App\Service\ImportModules\Quote\ImportQuoteBuilder;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,7 +16,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'app:import-quotes', description: 'Import financial quotes')]
 class ImportQuotesCommand extends Command
 {
-
 
     private InstrumentRepository $instrumentRepository;
     private ImportQuoteBuilder $importQuoteBuilder;
@@ -51,16 +51,41 @@ class ImportQuotesCommand extends Command
                 return Command::FAILURE;
             }
             $io->writeln(sprintf('Importing quotes for symbol: %s', $symbol));
-            $this->importQuoteBuilder->getImportProvider($instruments)->import($instruments);
+            $importProvider = $this->importQuoteBuilder->getImportProvider($instruments);
+
+
+            $importProvider->import($instruments);
+
 
         } else {
             $io->writeln('Importing quotes for all instruments in the repository');
             $instruments = $this->instrumentRepository->findAll();
+
+            $progressBar = null;
+            if(count($instruments)>0)
+                $progressBar = new ProgressBar($output, count($instruments));
+
+
             foreach ($instruments as $instrument) {
                 $symbol = $instrument->getSymbol();
-                $io->writeln(sprintf('Importing quotes for symbol: %s', $symbol));
-                $this->yahooFinanceImportQuote->import($instrument);
+
+                if($progressBar!=null) {
+                    $progressBar->advance();
+                    $progressBar->setMessage(sprintf('Importing quotes for symbol: %s', $symbol));
+                }
+                else
+                {
+                    $io->writeln(sprintf('Importing quotes for symbol: %s', $symbol));
+                }
+
+                $importProvider = $this->importQuoteBuilder->getImportProvider($instrument);
+                $importProvider->import($instrument);
+
+
+                $io->writeln('');
             }
+
+            $progressBar?->finish();
         }
 
         return Command::SUCCESS;

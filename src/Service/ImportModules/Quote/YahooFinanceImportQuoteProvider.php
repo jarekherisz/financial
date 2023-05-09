@@ -4,17 +4,20 @@ namespace App\Service\ImportModules\Quote;
 
 use App\Entity\Instrument;
 use App\Entity\Quote;
+use App\Repository\QuoteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpClient\HttpClient;
 
-class YahooFinanceImportQuoteProvider implements ImportProviderInterface
+class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements ImportProviderInterface
 {
     private EntityManagerInterface $entityManager;
+    private QuoteRepository $quoteRepository;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+        $this->quoteRepository = $entityManager->getRepository(Quote::class);
     }
 
     /**
@@ -42,6 +45,9 @@ class YahooFinanceImportQuoteProvider implements ImportProviderInterface
             throw new Exception("Headers are incorrect or do not match the expected structure");
         }
 
+        $quotesArray = $this->quoteRepository->findArrayByInstrument($instrument);
+        $i = 0;
+
         foreach ($lines as $line) {
             $data = str_getcsv($line);
 
@@ -49,9 +55,19 @@ class YahooFinanceImportQuoteProvider implements ImportProviderInterface
                 throw new Exception("Data row is incomplete or has an incorrect number of columns");
             }
 
-            $quote = new Quote();
+            $date = \DateTime::createFromFormat('Y-m-d', $data[0]);
+
+            if(isset($quotesArray[$date->format('Y-m-d')]))
+            {
+                $quote = $quotesArray[$date->format('Y-m-d')];
+            }else{
+                $quote = new Quote();
+                $quote->setDate($date);
+            }
+
+
             $quote->setInstrument($instrument); // Assuming $symbol is an instance of Instrument entity
-            $quote->setDate(\DateTime::createFromFormat('Y-m-d', $data[0]));
+
             $quote->setOpen($data[1]);
             $quote->setHigh($data[2]);
             $quote->setLow($data[3]);
@@ -60,6 +76,7 @@ class YahooFinanceImportQuoteProvider implements ImportProviderInterface
             $quote->setVolume($data[6]);
 
             $this->entityManager->persist($quote);
+
         }
 
         $this->entityManager->flush();
