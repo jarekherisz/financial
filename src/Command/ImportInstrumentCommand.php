@@ -5,6 +5,7 @@ namespace App\Command;
 
 
 use App\Entity\Instrument;
+use App\Entity\InstrumentExchange;
 use App\Repository\InstrumentExchangeRepository;
 use App\Repository\InstrumentRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,7 +62,18 @@ class ImportInstrumentCommand extends Command
 
             $this->instrumentRepository->save($instrument, true);
 
-            
+            $instrumentExchange = $this->instrumentExchangeRepository->findOneBy(['instrument' => $instrument, 'exchange' => $record['exchange'], 'ticker' => $record['ticker']]);
+            if (!$instrumentExchange) {
+                $instrumentExchange = new InstrumentExchange();
+                $instrumentExchange->setInstrument($instrument);
+                $instrumentExchange->setExchange($record['exchange']);
+                $instrumentExchange->setTicker($record['ticker']);
+
+            }
+            $instrumentExchange->setTickerGoogle($record['tickerGoogle']);
+            $instrumentExchange->setTickerYacho($record['tickerYahoo']);
+            $instrumentExchange->setCurrency($record['currency']);
+            $this->instrumentExchangeRepository->save($instrumentExchange, true);
         }
 
         $output->writeln('Import completed.');
