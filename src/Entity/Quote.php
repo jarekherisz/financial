@@ -143,4 +143,16 @@ class Quote
 
         return $this;
     }
+
+    public function getInstrumentExchange(): ?InstrumentExchange
+    {
+        return $this->instrumentExchange;
+    }
+
+    public function setInstrumentExchange(?InstrumentExchange $instrumentExchange): self
+    {
+        $this->instrumentExchange = $instrumentExchange;
+
+        return $this;
+    }
 }
