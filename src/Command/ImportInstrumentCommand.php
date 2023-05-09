@@ -8,6 +8,7 @@ use App\Entity\Instrument;
 use App\Entity\InstrumentExchange;
 use App\Repository\InstrumentExchangeRepository;
 use App\Repository\InstrumentRepository;
+use App\Service\ImportModules\Quote\YahooFinanceImportQuoteProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -71,8 +72,13 @@ class ImportInstrumentCommand extends Command
 
             }
             $instrumentExchange->setTickerGoogle($record['tickerGoogle']);
-            $instrumentExchange->setTickerYacho($record['tickerYahoo']);
+
             $instrumentExchange->setCurrency($record['currency']);
+            if($record['tickerYahoo']!="")
+            {
+                $instrumentExchange->setTickerYacho($record['tickerYahoo']);
+                $instrumentExchange->setQuoteImportModule(YahooFinanceImportQuoteProvider::class);
+            }
             $this->instrumentExchangeRepository->save($instrumentExchange, true);
         }
 
