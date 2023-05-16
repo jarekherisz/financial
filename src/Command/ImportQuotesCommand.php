@@ -67,8 +67,6 @@ class ImportQuotesCommand extends Command
 
 
             foreach ($instruments as $instrument) {
-                $symbol = $instrument->getSymbol();
-
                 if($progressBar!=null) {
                     $progressBar->advance();
                     $progressBar->setMessage(sprintf('Importing quotes for symbol: %s', $symbol));
@@ -78,8 +76,14 @@ class ImportQuotesCommand extends Command
                     $io->writeln(sprintf('Importing quotes for symbol: %s', $symbol));
                 }
 
-                $importProvider = $this->importQuoteBuilder->getImportProvider($instrument);
-                $importProvider->import($instrument);
+              foreach($instrument->getInstrumentExchange() as $instrumentExchange) {
+                  if($instrumentExchange->getQuoteImportModule() != null)
+                  {
+                      $quoteImportModule = $this->importQuoteBuilder->getImportProvider($instrumentExchange->getQuoteImportModule());
+                      $quoteImportModule->import($instrumentExchange);
+
+                  }
+              }
 
             }
 

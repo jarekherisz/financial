@@ -17,14 +17,14 @@ class ImportQuoteBuilder
 
     }
 
-    public function getImportProvider(Instrument $instrument): ImportProviderInterface
+    public function getImportProvider(string $class): ImportProviderInterface
     {
         foreach($this->importProviders as $importProvider)
         {
-            if($importProvider::class === $instrument->getQuoteModule())
+            if($importProvider::class === $class)
                 return $importProvider;
         }
 
-        throw new Exception("No import provider found for symbol $instrument->getSymbol()");
+        throw new Exception("No import provider '$class' found");
     }
 }

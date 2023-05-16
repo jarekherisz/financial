@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: QuoteRepository::class)]
-#[UniqueConstraint(name: "instrument_date_unique", columns: ["instrument_id", "date"])]
+#[UniqueConstraint(name: "instrument_exchange_date_unique", columns: ["instrument_exchange_id", "date"])]
 class Quote
 {
     #[ORM\Id]
@@ -19,7 +19,7 @@ class Quote
     private ?int $id = null;
 
     #[ManyToOne(targetEntity:InstrumentExchange::class, inversedBy:"quotes")]
-    #[JoinColumn(name:"instrument_id", referencedColumnName:"id")]
+    #[JoinColumn(name:"instrument_exchange_id", referencedColumnName:"id")]
     private InstrumentExchange|null $instrumentExchange = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -128,18 +128,6 @@ class Quote
     public function setVolume(?string $volume): self
     {
         $this->volume = $volume;
-
-        return $this;
-    }
-
-    public function getInstrument(): ?Instrument
-    {
-        return $this->instrument;
-    }
-
-    public function setInstrument(?Instrument $instrument): self
-    {
-        $this->instrument = $instrument;
 
         return $this;
     }

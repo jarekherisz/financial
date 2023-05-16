@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Instrument;
+use App\Entity\InstrumentExchange;
 use App\Entity\Quote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -58,17 +59,19 @@ class QuoteRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+
     /**
-     * @param Instrument $instrument
+     * @param InstrumentExchange $instrumentExchange
      * @return Quote[]
      */
-    public function findArrayByInstrument(Instrument $instrument): array
+    public function findArrayByInstrumentExchange(InstrumentExchange $instrumentExchange): array
     {
-        $quotes = $this->createQueryBuilder('q')
-            ->andWhere('q.instrument = :instrument')
-            ->setParameter('instrument', $instrument)
+        $quotes = $this->createQueryBuilder('q')  // 'q' is an alias for 'Quote'
+        ->where('q.instrumentExchange = :instrumentExchange')
+            ->setParameter('instrumentExchange', $instrumentExchange)
             ->getQuery()
             ->getResult();
+
 
         $quotesArray = [];
         foreach($quotes as $quote) {
@@ -77,6 +80,4 @@ class QuoteRepository extends ServiceEntityRepository
 
         return $quotesArray;
     }
-
-
 }

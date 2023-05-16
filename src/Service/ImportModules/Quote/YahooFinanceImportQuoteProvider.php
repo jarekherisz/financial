@@ -3,8 +3,10 @@
 namespace App\Service\ImportModules\Quote;
 
 use App\Entity\Instrument;
+use App\Entity\InstrumentExchange;
 use App\Entity\Quote;
 use App\Repository\QuoteRepository;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpClient\HttpClient;
@@ -23,12 +25,12 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
     /**
      * @throws Exception
      */
-    public function import(Instrument $instrument, int $period1 = 0, int $period2 = 9999999999): void
+    public function import(InstrumentExchange $instrumentExchange, int $period1 = 0, int $period2 = 9999999999): void
     {
         $client = HttpClient::create();
         $url = sprintf(
             'https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%d&period2=%d&interval=1d&events=history&includeAdjustedClose=true',
-            $instrument->getYahooSymbol(),
+            $instrumentExchange->getTickerYacho(),
             $period1,
             $period2
         );
@@ -45,7 +47,7 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
             throw new Exception("Headers are incorrect or do not match the expected structure");
         }
 
-        $quotesArray = $this->quoteRepository->findArrayByInstrument($instrument);
+        $quotesArray = $this->quoteRepository->findArrayByInstrumentExchange($instrumentExchange);
         $i = 0;
 
         foreach ($lines as $line) {
@@ -66,19 +68,40 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
             }
 
 
-            $quote->setInstrument($instrument); // Assuming $symbol is an instance of Instrument entity
+            $quote->setInstrumentExchange($instrumentExchange); // Assuming $symbol is an instance of Instrument entity
 
-            $quote->setOpen($data[1]);
-            $quote->setHigh($data[2]);
-            $quote->setLow($data[3]);
-            $quote->setClose($data[4]);
-            $quote->setAdjClose($data[5]);
-            $quote->setVolume($data[6]);
+            $quote->setOpen($data[1] === 'null' ? null : $data[1]);
+            $quote->setHigh($data[2] === 'null' ? null : $data[2]);
+            $quote->setLow($data[3] === 'null' ? null : $data[3]);
+            $quote->setClose($data[4] === 'null' ? null : $data[4]);
+            $quote->setAdjClose($data[5] === 'null' ? null : $data[5]);
+            $quote->setVolume($data[6] === 'null' ? null : $data[6]);
+
 
             $this->entityManager->persist($quote);
 
         }
 
-        $this->entityManager->flush();
+        try {
+            $this->entityManager->flush();
+        } catch (DriverException $e) {
+            echo $instrumentExchange->getTickerYacho() . PHP_EOL;
+
+            echo 'SQLSTATE: ' . $e->getSQLState() . PHP_EOL;
+            echo 'Query: ' . $e->getQuery()->getSQL() . PHP_EOL;
+            foreach ($e->getQuery()->getParams() as $paramName => $param) {
+                if ($param instanceof \DateTime) {
+                    echo $paramName . ': ' . $param->format('Y-m-d H:i:s') . PHP_EOL;
+                } else {
+                    echo $paramName . ': ' . $param . PHP_EOL;
+                }
+            }
+
+
+            throw new Exception($e->getMessage());
+        } catch (\Exception $e) {
+            echo  $instrumentExchange->getTickerYacho();
+            throw new Exception($e->getMessage());
+        }
     }
 }
