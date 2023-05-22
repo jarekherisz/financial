@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -19,11 +20,11 @@ class InstrumentExchange
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ManyToOne(targetEntity:Instrument::class, inversedBy:"quotes")]
+    #[ManyToOne(targetEntity:Instrument::class, inversedBy:"instrumentExchange")]
     #[JoinColumn(name:"instrument_id", referencedColumnName:"id")]
     private Instrument|null $instrument = null;
 
-    #[OneToMany(mappedBy: 'instrument', targetEntity: Quote::class)]
+    #[OneToMany(mappedBy: 'instrumentExchange', targetEntity: Quote::class)]
     private Collection $quotes;
 
     #[ORM\Column(length: 20)]
@@ -137,22 +138,36 @@ class InstrumentExchange
         return $this->quotes;
     }
 
+    public function getLastQuote(): ?Quote
+    {
+        $criteria = Criteria::create()
+            ->orderBy(['date' => Criteria::DESC])
+            ->setMaxResults(1);
+
+        $lastQuote = $this->quotes->matching($criteria)->first();
+
+        return $lastQuote === false ? null : $lastQuote;
+    }
+
+
+
     public function addQuote(Quote $quote): self
     {
         if (!$this->quotes->contains($quote)) {
             $this->quotes->add($quote);
-            $quote->setInstrument($this);
+            $quote->setInstrumentExchange($this);
         }
 
         return $this;
     }
 
+
     public function removeQuote(Quote $quote): self
     {
         if ($this->quotes->removeElement($quote)) {
             // set the owning side to null (unless already changed)
-            if ($quote->getInstrument() === $this) {
-                $quote->setInstrument(null);
+            if ($quote->getInstrumentExchange() === $this) {
+                $quote->setInstrumentExchange(null);
             }
         }
 

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\InstrumentExchange;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -39,28 +40,16 @@ class InstrumentExchangeRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return InstrumentExchange[] Returns an array of InstrumentExchange objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('i.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?InstrumentExchange
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * @return InstrumentExchange[]
+     */
+    public function findByTicker($ticker): array
+    {
+        return $this->createQueryBuilder('i')
+            ->andWhere('i.ticker = :val')
+            ->setParameter('val', $ticker)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

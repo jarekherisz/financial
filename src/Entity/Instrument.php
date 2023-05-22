@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Core\Entity\FileToModule;
 use App\Repository\InstrumentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

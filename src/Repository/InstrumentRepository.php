@@ -53,14 +53,4 @@ class InstrumentRepository extends ServiceEntityRepository
 //            ->getResult()
 //        ;
 //    }
-
-    public function findOneBySymbol($symbol): ?Instrument
-    {
-        return $this->createQueryBuilder('i')
-            ->andWhere('i.symbol = :val')
-            ->setParameter('val', $symbol)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
 }

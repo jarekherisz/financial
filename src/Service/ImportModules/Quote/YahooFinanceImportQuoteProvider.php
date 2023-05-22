@@ -2,28 +2,28 @@
 
 namespace App\Service\ImportModules\Quote;
 
-use App\Entity\Instrument;
 use App\Entity\InstrumentExchange;
 use App\Entity\Quote;
 use App\Repository\QuoteRepository;
+use DateTime;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements ImportProviderInterface
 {
-    private EntityManagerInterface $entityManager;
-    private QuoteRepository $quoteRepository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+
+    public function __construct(private readonly EntityManagerInterface $entityManager,
+                                private readonly QuoteRepository        $quoteRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->quoteRepository = $entityManager->getRepository(Quote::class);
     }
 
     /**
      * @throws Exception
+     * @throws TransportExceptionInterface
      */
     public function import(InstrumentExchange $instrumentExchange, int $period1 = 0, int $period2 = 9999999999): void
     {
@@ -35,6 +35,7 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
             $period2
         );
 
+        dump($url);
         $response = $client->request('GET', $url);
         $content = $response->getContent();
 
@@ -48,7 +49,6 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
         }
 
         $quotesArray = $this->quoteRepository->findArrayByInstrumentExchange($instrumentExchange);
-        $i = 0;
 
         foreach ($lines as $line) {
             $data = str_getcsv($line);
@@ -57,7 +57,7 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
                 throw new Exception("Data row is incomplete or has an incorrect number of columns");
             }
 
-            $date = \DateTime::createFromFormat('Y-m-d', $data[0]);
+            $date = DateTime::createFromFormat('Y-m-d', $data[0]);
 
             if(isset($quotesArray[$date->format('Y-m-d')]))
             {
@@ -90,7 +90,7 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
             echo 'SQLSTATE: ' . $e->getSQLState() . PHP_EOL;
             echo 'Query: ' . $e->getQuery()->getSQL() . PHP_EOL;
             foreach ($e->getQuery()->getParams() as $paramName => $param) {
-                if ($param instanceof \DateTime) {
+                if ($param instanceof DateTime) {
                     echo $paramName . ': ' . $param->format('Y-m-d H:i:s') . PHP_EOL;
                 } else {
                     echo $paramName . ': ' . $param . PHP_EOL;
@@ -99,7 +99,7 @@ class YahooFinanceImportQuoteProvider extends ImportProviderAbstract implements 
 
 
             throw new Exception($e->getMessage());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo  $instrumentExchange->getTickerYacho();
             throw new Exception($e->getMessage());
         }
