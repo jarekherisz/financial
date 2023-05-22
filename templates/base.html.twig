@@ -11,60 +11,46 @@
     {%- block stylesheets %}{%~ endblock %}
 
 </head>
-<body class="d-flex flex-column h-100 bg-light">
+<body class="d-flex flex-column h-100">
 
 <header>
-    {% block header %}
-
-        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" href="/">
-                    <img src="/images/logo_menu.png">
-                </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-
-                </div>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Logo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
             </div>
-        </nav>
-
-    {% endblock %}
+        </div>
+    </nav>
 </header>
 
 
 
 
 
-{% block main %}
-    <main class="{% block main_class %}container"{% endblock %}>
-        <div class="card">
-            {% block top_main %}
-                <div class="card-header d-flex">
-                    <div class="">{% block main_icon %}{% endblock %}{{ block('title') }}</div>
-                    <div class="flex-grow-1 d-flex justify-content-end">
-                        <div>{% block title_right %}{% endblock %}</div>
-                    </div>
+<main class="flex-shrink-0">
+    <div class="container-fluid">
+        {% block content %}{% endblock %}
+    </div>
+</main>
 
-                </div>
-            {% endblock %}
-            <div class="card-body">
-                {% block content %}{% endblock %}
-            </div>
-        </div>
-    </main>
-{% endblock %}
-
-
-{% block footer %}
-    <footer class="footer mt-auto py-2 bg-light">
-        <div class="container-fluid">
-            <span class="text-muted">© Mistal 2023</span>
-        </div>
-    </footer>
-{% endblock %}
+<footer class="footer mt-auto py-2 bg-light">
+    <div class="container-fluid">
+        <span class="text-muted">© Mistal 2023</span>
+    </div>
+</footer>
 
 {{ encore_entry_script_tags('app') }}
 {% block javascripts %}<script></script>{% endblock %}
